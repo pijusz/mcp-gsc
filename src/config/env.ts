@@ -8,7 +8,7 @@ const envSchema = z.object({
   GOOGLE_GSC_TOKEN_PATH: z.string().default(""),
   GOOGLE_GSC_PROPERTY: z.string().default(""),
   GOOGLE_GSC_ENABLE_WRITES: z.enum(["true", "false"]).default("false"),
-  GOOGLE_GSC_ENABLE_EXTENDED_TOOLS: z.enum(["true", "false"]).default("false"),
+  GOOGLE_GSC_ENABLE_EXTENDED_TOOLS: z.enum(["true", "false"]).default("true"),
 });
 
 export type Env = z.infer<typeof envSchema>;
