@@ -1,0 +1,57 @@
+{
+  "name": "mcp-gsc",
+  "version": "0.1.0",
+  "description": "Google Search Console MCP server — query search analytics, inspect URLs, manage sitemaps & more via natural language",
+  "type": "module",
+  "bin": {
+    "mcp-gsc": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "bun src/index.ts",
+    "build": "bun build src/index.ts --compile --outfile=mcp-gsc",
+    "build:npm": "bun build src/index.ts --bundle --target node --outfile dist/index.js && node -e \"const f='dist/index.js';require('fs').writeFileSync(f,require('fs').readFileSync(f,'utf8').replace('#!/usr/bin/env bun','#!/usr/bin/env node'))\"",
+    "prepublishOnly": "bun run build:npm",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "setup": "bun run src/auth/setup.ts",
+    "inspect": "bunx @modelcontextprotocol/inspector bun src/index.ts",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "check": "biome check --write ."
+  },
+  "keywords": [
+    "mcp",
+    "google-search-console",
+    "gsc",
+    "seo",
+    "ai",
+    "claude",
+    "model-context-protocol",
+    "bun"
+  ],
+  "author": "pijusz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pijusz/mcp-gsc.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://github.com/pijusz/mcp-gsc#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "google-auth-library": "^9.15.1",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@types/bun": "^1.2.9",
+    "typescript": "^5.8.3"
+  }
+}
