@@ -41,10 +41,10 @@ export function registerTechnicalTools(server: McpServer) {
 
       for (const url of urls) {
         await waitForQuota(property);
-        trackInspection(property);
 
         try {
           const result = await inspectUrl(property, url);
+          trackInspection(property); // Track after success
           const idx = result.inspectionResult?.indexStatusResult;
 
           if (!idx) {

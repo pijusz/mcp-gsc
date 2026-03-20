@@ -20,6 +20,14 @@ if (process.argv[2] === "setup") {
   process.exit(0);
 }
 
+// Load .env BEFORE creating server so tool gate checks see .env values
+try {
+  loadEnv();
+} catch {
+  // loadEnv may fail if CREDENTIALS_PATH isn't set yet — that's OK,
+  // preflight will catch it. But .env values are now in process.env.
+}
+
 const server = createServer();
 const transport = new StdioServerTransport();
 

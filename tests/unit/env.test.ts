@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
 describe("env validation", () => {
   const origEnv = { ...process.env };
@@ -26,9 +26,9 @@ describe("env validation", () => {
     expect(isWritesEnabledFromProcessEnv()).toBe(true);
   });
 
-  test("isExtendedToolsEnabledFromProcessEnv returns false by default", async () => {
+  test("isExtendedToolsEnabledFromProcessEnv returns true by default", async () => {
     delete process.env.GOOGLE_GSC_ENABLE_EXTENDED_TOOLS;
     const { isExtendedToolsEnabledFromProcessEnv } = await import("../../src/config/env");
-    expect(isExtendedToolsEnabledFromProcessEnv()).toBe(false);
+    expect(isExtendedToolsEnabledFromProcessEnv()).toBe(true);
   });
 });

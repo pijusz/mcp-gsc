@@ -48,10 +48,13 @@ export async function resolveProperty(siteUrl?: string): Promise<string> {
     if (url === `sc-domain:${domain}`) {
       return site.siteUrl; // exact domain match, prefer this
     }
+    // Strict matches only — no substring matching to avoid
+    // e.g. "example.com" matching "notexample.com"
     if (
-      url.includes(domain) ||
       url === `https://${domain}/` ||
-      url === `http://${domain}/`
+      url === `http://${domain}/` ||
+      url === `https://www.${domain}/` ||
+      url === `http://www.${domain}/`
     ) {
       matches.push(site);
     }

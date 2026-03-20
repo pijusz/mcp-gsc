@@ -85,5 +85,6 @@ export function isWritesEnabledFromProcessEnv(): boolean {
 }
 
 export function isExtendedToolsEnabledFromProcessEnv(): boolean {
-  return process.env.GOOGLE_GSC_ENABLE_EXTENDED_TOOLS === "true";
+  // Default is "true" — only disable if explicitly set to "false"
+  return process.env.GOOGLE_GSC_ENABLE_EXTENDED_TOOLS !== "false";
 }

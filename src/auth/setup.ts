@@ -112,7 +112,9 @@ async function main() {
   console.log("  Exchanging authorization code for tokens...");
   const { tokens } = await oauthClient.getToken(code);
 
-  const tokenPath = absPath.replace(/\.json$/i, "_token.json");
+  // Respect GOOGLE_GSC_TOKEN_PATH if set, otherwise derive from credentials path
+  const tokenPath =
+    process.env.GOOGLE_GSC_TOKEN_PATH || absPath.replace(/\.json$/i, "_token.json");
   if (tokenPath === absPath) {
     console.error("  Error: Credentials path must end with .json");
     process.exit(1);

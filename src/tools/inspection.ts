@@ -32,9 +32,9 @@ export function registerInspectionTools(server: McpServer) {
       }
 
       await waitForQuota(property);
-      trackInspection(property);
 
       const result = await inspectUrl(property, args.url);
+      trackInspection(property); // Track after success, not before
       const warning = quotaWarning(property);
       const text = JSON.stringify(result, null, 2) + warning;
 
@@ -72,10 +72,10 @@ export function registerInspectionTools(server: McpServer) {
       // Serialize inspections with throttling for per-minute limit
       for (const url of args.urls) {
         await waitForQuota(property);
-        trackInspection(property);
 
         try {
           const result = await inspectUrl(property, url);
+          trackInspection(property); // Track after success
           const idx = result.inspectionResult?.indexStatusResult;
           results.push({
             url,

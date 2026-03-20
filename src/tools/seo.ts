@@ -450,24 +450,68 @@ export function registerSeoTools(server: McpServer) {
         return obj;
       });
 
+      let outputRows = rows;
+
       if (args.granularity === "weekly" && rows.length > 0) {
-        // Group by ISO week
-        const weekMap = new Map<string, typeof rows>();
+        // Group by ISO week + entity (query/page)
+        const entityDims = dims.filter((d) => d !== "date");
+        const weekMap = new Map<
+          string,
+          { clicks: number; impressions: number; position: number; count: number }
+        >();
+
         for (const row of rows) {
           const date = new Date(row.date as string);
           const weekStart = new Date(date);
           weekStart.setDate(date.getDate() - date.getDay());
-          const key = `${weekStart.toISOString().slice(0, 10)}|${row.query ?? row.page ?? ""}`;
-          const list = weekMap.get(key) ?? [];
-          list.push(row);
-          weekMap.set(key, list);
+          const entityKey = entityDims.map((d) => row[d] ?? "").join("|");
+          const key = `${weekStart.toISOString().slice(0, 10)}|${entityKey}`;
+
+          const agg = weekMap.get(key) ?? {
+            clicks: 0,
+            impressions: 0,
+            position: 0,
+            count: 0,
+          };
+          agg.clicks += Number(row.clicks) || 0;
+          agg.impressions += Number(row.impressions) || 0;
+          agg.position += Number.parseFloat(String(row.position)) || 0;
+          agg.count += 1;
+          weekMap.set(key, agg);
         }
 
-        // This is simplified — return daily for now with weekly noted
+        outputRows = [];
+        for (const [key, agg] of weekMap) {
+          const parts = key.split("|");
+          const weekDate = parts[0];
+          const obj: Record<string, unknown> = { date: weekDate };
+          for (let i = 0; i < entityDims.length; i++) {
+            obj[entityDims[i]] = parts[i + 1] ?? "";
+          }
+          obj.clicks = agg.clicks;
+          obj.impressions = agg.impressions;
+          obj.ctr = formatCtr(agg.impressions > 0 ? agg.clicks / agg.impressions : 0);
+          obj.position = formatPosition(agg.position / agg.count);
+          outputRows.push(obj);
+        }
+
+        // Sort by date then entity
+        outputRows.sort((a, b) => {
+          const dateCompare = String(a.date).localeCompare(String(b.date));
+          if (dateCompare !== 0) return dateCompare;
+          return String(a[entityDims[0]] ?? "").localeCompare(
+            String(b[entityDims[0]] ?? ""),
+          );
+        });
       }
 
       const columns = [...dims, "clicks", "impressions", "ctr", "position"];
-      const table = formatMarkdownTable(rows.slice(0, 200), columns, "Position Tracking");
+      const granLabel = args.granularity === "weekly" ? " (weekly)" : "";
+      const table = formatMarkdownTable(
+        outputRows.slice(0, 200),
+        columns,
+        `Position Tracking${granLabel}`,
+      );
 
       return {
         content: [
