@@ -399,7 +399,7 @@ export function registerSeoTools(server: McpServer) {
           });
         } else {
           const regex = args.queries
-            .map((q) => q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+            .map((q: string) => q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
             .join("|");
           filters.push({
             dimension: "query",
@@ -419,7 +419,7 @@ export function registerSeoTools(server: McpServer) {
           });
         } else {
           const regex = args.pages
-            .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+            .map((p: string) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
             .join("|");
           filters.push({
             dimension: "page",

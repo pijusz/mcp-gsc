@@ -78,11 +78,13 @@ IMPORTANT: The GSC API has an absolute ceiling of 25,000 rows per query (sorted 
         if (args.dimension_filters?.length) {
           request.dimensionFilterGroups = [
             {
-              filters: args.dimension_filters.map((f) => ({
-                dimension: f.dimension,
-                operator: f.operator,
-                expression: f.expression,
-              })),
+              filters: args.dimension_filters.map(
+                (f: { dimension: string; operator: string; expression: string }) => ({
+                  dimension: f.dimension,
+                  operator: f.operator,
+                  expression: f.expression,
+                }),
+              ),
             },
           ];
         }

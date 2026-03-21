@@ -2,6 +2,8 @@
   <img src="logo.svg" alt="mcp-gsc" width="280" />
 </p>
 
+<h1 align="center">mcp-gsc</h1>
+
 <p align="center">
   Google Search Console MCP server — query search analytics, inspect URLs, manage sitemaps & more via natural language.
   <br/>

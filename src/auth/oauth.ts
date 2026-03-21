@@ -48,7 +48,10 @@ export async function getOAuthClient(): Promise<OAuth2Client> {
   const data = JSON.parse(raw);
 
   if (data.installed || data.web) {
-    const config = ((data as ClientConfig).installed ?? (data as ClientConfig).web)!;
+    const config = (data as ClientConfig).installed ?? (data as ClientConfig).web;
+    if (!config) {
+      throw new Error(`Credentials file at ${credPath} is missing OAuth client config.`);
+    }
     _client = new OAuth2Client(config.client_id, config.client_secret);
 
     const tokenPath = deriveTokenPath(credPath);

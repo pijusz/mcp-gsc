@@ -231,8 +231,9 @@ export function registerReportingTools(server: McpServer) {
       for (const key of allKeys) {
         const a = mapA.get(key);
         const b = mapB.get(key);
-        const valA = a?.[args.metric] ?? 0;
-        const valB = b?.[args.metric] ?? 0;
+        const metric = args.metric as "clicks" | "impressions" | "position";
+        const valA = a?.[metric] ?? 0;
+        const valB = b?.[metric] ?? 0;
         const delta = (valA as number) - (valB as number);
 
         movers.push({
