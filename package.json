@@ -1,6 +1,6 @@
 {
   "name": "mcp-gsc",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Google Search Console MCP server — query search analytics, inspect URLs, manage sitemaps & more via natural language",
   "type": "module",
   "main": "dist/index.js",
@@ -55,5 +55,6 @@
     "@biomejs/biome": "2.4.8",
     "@types/bun": "1.3.11",
     "typescript": "5.9.3"
-  }
+  },
+  "mcpName": "io.github.pijusz/mcp-gsc"
 }
