@@ -189,6 +189,18 @@ function printConfigSnippets(credPath: string) {
     `  claude mcp add gsc -e GOOGLE_GSC_CREDENTIALS_PATH=${credPath} -- npx -y mcp-gsc@latest`,
   );
 
+  console.log("\n  Codex CLI (~/.codex/config.toml):");
+  const toml = [
+    "[mcp_servers.gsc]",
+    'command = "npx"',
+    'args = ["-y", "mcp-gsc@latest"]',
+    "startup_timeout_sec = 30",
+    `env = { GOOGLE_GSC_CREDENTIALS_PATH = '${credPath}' }`,
+  ]
+    .map((l) => `  ${l}`)
+    .join("\n");
+  console.log(toml);
+
   console.log("\n  Setup complete!\n");
 }
 

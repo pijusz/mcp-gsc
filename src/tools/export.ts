@@ -8,12 +8,14 @@ import {
   type SearchAnalyticsRequest,
 } from "../services/gsc-api.js";
 import { resolveProperty } from "../services/property-resolver.js";
+import { writeTool } from "../utils/register-tool.js";
 import { formatAnalyticsRows } from "./analytics.js";
 
 const MAX_ROWS_PER_REQUEST = 25000;
 
 export function registerExportTools(server: McpServer) {
-  server.tool(
+  writeTool(
+    server,
     "export_csv",
     `Export search analytics data to a CSV file. Auto-paginates internally (25K rows per API call) to write the full dataset, bypassing the tool response row cap.
 

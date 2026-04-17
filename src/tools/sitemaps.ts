@@ -7,9 +7,11 @@ import {
   submitSitemap,
 } from "../services/gsc-api.js";
 import { resolveProperty } from "../services/property-resolver.js";
+import { readTool, writeTool } from "../utils/register-tool.js";
 
 export function registerSitemapTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "list_sitemaps",
     "List all sitemaps for a property with status, type, indexed URL counts, errors/warnings.",
     {
@@ -56,7 +58,8 @@ export function registerSitemapTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "get_sitemap",
     "Get detailed info for a specific sitemap including content breakdown by type (web, image, video, etc.).",
     {
@@ -77,7 +80,8 @@ export function registerSitemapTools(server: McpServer) {
 }
 
 export function registerSitemapWriteTools(server: McpServer) {
-  server.tool(
+  writeTool(
+    server,
     "submit_sitemap",
     "Submit a new sitemap URL for a property. The sitemap must be accessible at the provided URL.",
     {
@@ -101,7 +105,8 @@ export function registerSitemapWriteTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  writeTool(
+    server,
     "delete_sitemap",
     "Remove/unsubmit a sitemap from a property. This does not delete the sitemap file itself.",
     {

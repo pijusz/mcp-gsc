@@ -3,9 +3,11 @@ import { z } from "zod";
 import { formatCtr, formatMarkdownTable, formatPosition } from "../services/format.js";
 import { querySearchAnalytics } from "../services/gsc-api.js";
 import { resolveProperty } from "../services/property-resolver.js";
+import { readTool } from "../utils/register-tool.js";
 
 export function registerSeoTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "quick_wins",
     "Find high-impression, low-CTR queries in striking distance (position 4-20). These are opportunities to improve rankings and CTR with small content or SEO tweaks.",
     {
@@ -80,7 +82,8 @@ export function registerSeoTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "cannibalization",
     "Detect keyword cannibalization — multiple pages ranking for the same query. Uses query + page dimensions to find overlap.",
     {
@@ -192,7 +195,8 @@ export function registerSeoTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "opportunity_finder",
     "Find queries with improving impressions but low clicks, new emerging queries, and declining performers. Makes 2 API calls to compare periods.",
     {
@@ -354,7 +358,8 @@ export function registerSeoTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "position_tracking",
     "Track position changes for specific queries or pages over time. Uses date dimension with query/page filters. Returns daily or weekly averages.",
     {
@@ -524,7 +529,8 @@ export function registerSeoTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "ctr_anomalies",
     "Detect queries/pages with abnormally low or high CTR relative to their position. Uses expected CTR curves per position bucket and flags deviations.",
     {
@@ -640,7 +646,8 @@ export function registerSeoTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "content_decay",
     "Detect pages/queries where impressions have dropped significantly compared to their historical peak within the 16-month API window.",
     {
@@ -767,7 +774,8 @@ export function registerSeoTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "weekly_seo_report",
     "All-in-one SEO report: runs performance overview + quick wins + top movers + indexing issues summary. Returns a combined markdown report.",
     {

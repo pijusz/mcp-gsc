@@ -20,7 +20,7 @@ mcp-gsc/
       index.ts                — Auth router: getAccessToken() + getAuthHeaders() (simpler than mcp-gads: no developer-token or login-customer-id, just Authorization: Bearer)
       oauth.ts                — OAuth2 flow (google-auth-library), token caching/refresh, deriveTokenPath()
       service-account.ts      — Service account JWT auth via GoogleAuth
-      setup.ts                — Combined setup: prints config JSON for Claude Desktop/Cursor/Codex + runs OAuth consent flow + verifies auth
+      setup.ts                — Combined setup: OAuth consent flow, verifies auth, prints client config (JSON for Claude Desktop/Cursor, TOML for Codex)
     config/
       env.ts                  — Zod-validated env config with custom .env loader (same pattern as mcp-gads, no dotenv dep)
     services/
@@ -142,7 +142,7 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 3. Exchanges auth code for tokens, saves to `*_token.json`
 4. Verifies auth by calling `sites.list`
 5. Reports success with number of accessible properties
-6. Prints config JSON snippets for Claude Desktop, Cursor, and Codex CLI
+6. Prints config snippets for Claude Desktop / Cursor (JSON), Claude Code CLI, and Codex (TOML)
 
 ---
 

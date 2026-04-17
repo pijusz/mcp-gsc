@@ -8,9 +8,11 @@ import {
   trackInspection,
   waitForQuota,
 } from "../services/rate-limiter.js";
+import { readTool } from "../utils/register-tool.js";
 
 export function registerTechnicalTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "indexing_coverage",
     "Batch-inspect user-provided URLs and categorize by indexing status: indexed, not indexed, canonical mismatch, robots blocked, fetch error, other. Respects URL Inspection rate limits.",
     {
@@ -125,7 +127,8 @@ export function registerTechnicalTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "sitemap_health",
     "Analyze all sitemaps: error/warning patterns, submission freshness (days since last submitted), indexed vs submitted ratio per sitemap.",
     {

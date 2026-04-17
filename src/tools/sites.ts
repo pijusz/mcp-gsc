@@ -1,9 +1,11 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { getSite, listSites } from "../services/gsc-api.js";
+import { readTool } from "../utils/register-tool.js";
 
 export function registerSiteTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "list_properties",
     "List all Google Search Console properties you have access to, with permission levels and verification status.",
     {},
@@ -33,7 +35,8 @@ export function registerSiteTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "get_property_details",
     "Get verification info, ownership, and permissions for a specific Google Search Console property.",
     {

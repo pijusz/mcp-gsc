@@ -13,6 +13,7 @@ import {
 } from "../services/gsc-api.js";
 import { resolveProperty } from "../services/property-resolver.js";
 import { extractBrandName } from "../utils/property.js";
+import { readTool } from "../utils/register-tool.js";
 
 const DIMENSIONS = [
   "query",
@@ -61,7 +62,8 @@ const dimensionFilterSchema = z
   .describe("Filters to apply to the query");
 
 export function registerAnalyticsTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "search_analytics",
     `Query Google Search Console search performance data (clicks, impressions, CTR, position) with filtering and grouping.
 

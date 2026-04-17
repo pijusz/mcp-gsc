@@ -75,6 +75,20 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
+### Codex CLI
+
+Add to `~/.codex/config.toml` (TOML, not JSON):
+
+```toml
+[mcp_servers.gsc]
+command = "npx"
+args = ["-y", "mcp-gsc@latest"]
+startup_timeout_sec = 30
+env = { GOOGLE_GSC_CREDENTIALS_PATH = "/path/to/credentials.json" }
+```
+
+> Codex defaults to a 10s startup timeout, which is often too short for a cold `npx` fetch. Bump `startup_timeout_sec` (30 is safe) or install the package globally (`npm i -g mcp-gsc`) and use `command = "mcp-gsc"` instead.
+
 ### Service Account (alternative)
 
 For server-to-server auth without browser-based OAuth:

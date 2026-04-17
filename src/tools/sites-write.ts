@@ -5,9 +5,11 @@ import {
   deleteSite as deleteSiteApi,
 } from "../services/gsc-api.js";
 import { invalidateSitesCache } from "../services/property-resolver.js";
+import { writeTool } from "../utils/register-tool.js";
 
 export function registerSiteWriteTools(server: McpServer) {
-  server.tool(
+  writeTool(
+    server,
     "add_site",
     "Add a new site to Google Search Console. The site must be verified separately after adding.",
     {
@@ -31,7 +33,8 @@ export function registerSiteWriteTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  writeTool(
+    server,
     "delete_site",
     "Remove a site from Google Search Console. This does not affect the site itself, only removes it from your GSC account.",
     {

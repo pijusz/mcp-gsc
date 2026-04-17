@@ -3,9 +3,11 @@ import { z } from "zod";
 import { formatCtr, formatMarkdownTable, formatPosition } from "../services/format.js";
 import { querySearchAnalytics } from "../services/gsc-api.js";
 import { resolveProperty } from "../services/property-resolver.js";
+import { readTool } from "../utils/register-tool.js";
 
 export function registerReportingTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "performance_overview",
     "Aggregate metrics (total clicks, impressions, avg CTR, avg position) plus a daily trend breakdown for a property. Single API call.",
     {
@@ -80,7 +82,8 @@ export function registerReportingTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "compare_periods",
     "Compare two date ranges with delta calculations (absolute change + percentage change) for each dimension value. Makes 2 API calls.",
     {
@@ -177,7 +180,8 @@ export function registerReportingTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "top_movers",
     "Biggest gains and drops in clicks/impressions/position between two periods. Period A = start_date to end_date. Period B = the comparison_days before start_date.",
     {
@@ -284,7 +288,8 @@ export function registerReportingTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "device_country_breakdown",
     "Performance breakdown by device type and/or country.",
     {

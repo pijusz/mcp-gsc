@@ -8,9 +8,11 @@ import {
   trackInspection,
   waitForQuota,
 } from "../services/rate-limiter.js";
+import { readTool } from "../utils/register-tool.js";
 
 export function registerInspectionTools(server: McpServer) {
-  server.tool(
+  readTool(
+    server,
     "inspect_url",
     "Inspect a URL's indexing status, crawl info, rich results, mobile usability, and canonical URLs. Counts against the daily 2,000 and per-minute 600 URL Inspection limits.",
     {
@@ -42,7 +44,8 @@ export function registerInspectionTools(server: McpServer) {
     },
   );
 
-  server.tool(
+  readTool(
+    server,
     "batch_inspect_urls",
     "Inspect up to 10 URLs simultaneously. Returns categorized results (indexed, not indexed, issues). Each URL counts against the daily 2,000 and per-minute 600 URL Inspection limits.",
     {
