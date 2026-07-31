@@ -102,6 +102,17 @@ jobs:
       - name: Build for npm
         run: bun build src/index.ts --bundle --target node --outfile dist/index.js && node -e "const f='dist/index.js';require('fs').writeFileSync(f,require('fs').readFileSync(f,'utf8').replace('#!/usr/bin/env bun','#!/usr/bin/env node'))"
 
-      - run: npm publish
+      # Publishing is done locally with an npmrc token, so NPM_TOKEN is usually
+      # unset. Skip rather than fail the release run; if the secret is ever
+      # added, this starts publishing automatically with no further change.
+      - name: Publish to npm
+        if: ${{ env.NODE_AUTH_TOKEN != '' }}
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Note skipped publish
+        if: ${{ env.NODE_AUTH_TOKEN == '' }}
+        run: echo "NPM_TOKEN not set — skipping npm publish (published locally)." >> $GITHUB_STEP_SUMMARY
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
