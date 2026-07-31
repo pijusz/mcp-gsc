@@ -38,7 +38,9 @@ describe("tool registration", () => {
     expect(toolNames).toContain("delete_site");
     expect(toolNames).toContain("submit_sitemap");
     expect(toolNames).toContain("delete_sitemap");
-    expect(toolNames.length).toBe(12); // 8 core + 4 write
+    expect(toolNames).toContain("request_indexing");
+    expect(toolNames).toContain("get_indexing_status");
+    expect(toolNames.length).toBe(14); // 8 core + 4 write + 2 indexing
   });
 
   test("registers extended tools when enabled", () => {
@@ -82,6 +84,6 @@ describe("tool registration", () => {
 
     const tools = (server as any)._registeredTools;
     const toolNames = Object.keys(tools);
-    expect(toolNames.length).toBe(25); // 8 core + 4 write + 13 extended
+    expect(toolNames.length).toBe(27); // 8 core + 4 write + 2 indexing + 13 extended
   });
 });

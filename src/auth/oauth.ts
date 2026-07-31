@@ -4,7 +4,12 @@ import { OAuth2Client } from "google-auth-library";
 import { getEnv } from "../config/env.js";
 import { log } from "../utils/logger.js";
 
-const SCOPES = ["https://www.googleapis.com/auth/webmasters"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/webmasters",
+  // Required by request_indexing. Existing tokens predate this scope, so the
+  // Indexing API returns ACCESS_TOKEN_SCOPE_INSUFFICIENT until setup is re-run.
+  "https://www.googleapis.com/auth/indexing",
+];
 
 /** Derive companion token path from a credentials path. */
 export function deriveTokenPath(credPath: string): string {

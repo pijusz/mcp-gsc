@@ -5,7 +5,12 @@ import { createServer } from "node:http";
 import { dirname, resolve } from "node:path";
 import { OAuth2Client } from "google-auth-library";
 
-const SCOPES = ["https://www.googleapis.com/auth/webmasters"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/webmasters",
+  // Required by request_indexing. Existing tokens predate this scope, so the
+  // Indexing API returns ACCESS_TOKEN_SCOPE_INSUFFICIENT until setup is re-run.
+  "https://www.googleapis.com/auth/indexing",
+];
 const REDIRECT_PORT = 9876;
 const REDIRECT_URI = `http://localhost:${REDIRECT_PORT}/callback`;
 

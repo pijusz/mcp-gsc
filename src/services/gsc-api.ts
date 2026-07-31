@@ -253,3 +253,72 @@ export async function inspectUrl(
     },
   );
 }
+
+// --- Indexing API ---
+//
+// Separate host and OAuth scope from the rest of Search Console. Requires the
+// Indexing API enabled on the Cloud project and the caller to be a verified
+// *owner* of the property (not merely a full user).
+
+const INDEXING_BASE = "https://indexing.googleapis.com/v3";
+
+export interface UrlNotificationMetadata {
+  url?: string;
+  latestUpdate?: { url?: string; type?: string; notifyTime?: string };
+  latestRemove?: { url?: string; type?: string; notifyTime?: string };
+}
+
+export interface PublishUrlNotificationResponse {
+  urlNotificationMetadata?: UrlNotificationMetadata;
+}
+
+/** Rewrites the scope error, which is otherwise an opaque 403 for anyone whose token predates the indexing scope. */
+function describeIndexingError(err: unknown): never {
+  const msg = (err as Error).message ?? String(err);
+  if (msg.includes("ACCESS_TOKEN_SCOPE_INSUFFICIENT")) {
+    throw new Error(
+      "Your saved credentials predate the Indexing API scope. Re-run `mcp-gsc setup` to re-authorise, then try again.",
+    );
+  }
+  if (
+    msg.includes("Indexing API has not been used") ||
+    msg.includes("SERVICE_DISABLED")
+  ) {
+    throw new Error(
+      "The Indexing API is not enabled on this Google Cloud project. Enable it at https://console.cloud.google.com/apis/library/indexing.googleapis.com and retry.",
+    );
+  }
+  if (msg.includes("Permission denied") || msg.includes("does not own")) {
+    throw new Error(
+      "Permission denied. The Indexing API requires you to be a verified *owner* of the property in Search Console, not just a full user.",
+    );
+  }
+  throw err;
+}
+
+export async function publishUrlNotification(
+  url: string,
+  type: "URL_UPDATED" | "URL_DELETED",
+): Promise<PublishUrlNotificationResponse> {
+  try {
+    return await apiRequest<PublishUrlNotificationResponse>(
+      `${INDEXING_BASE}/urlNotifications:publish`,
+      "POST",
+      { url, type },
+    );
+  } catch (err) {
+    return describeIndexingError(err);
+  }
+}
+
+export async function getUrlNotificationMetadata(
+  url: string,
+): Promise<UrlNotificationMetadata> {
+  try {
+    return await apiRequest<UrlNotificationMetadata>(
+      `${INDEXING_BASE}/urlNotifications/metadata?url=${encodeURIComponent(url)}`,
+    );
+  } catch (err) {
+    return describeIndexingError(err);
+  }
+}

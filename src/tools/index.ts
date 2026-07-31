@@ -3,6 +3,7 @@ import type { Env } from "../config/env.js";
 import { log } from "../utils/logger.js";
 import { registerAnalyticsTools } from "./analytics.js";
 import { registerExportTools } from "./export.js";
+import { registerIndexingTools } from "./indexing.js";
 import { registerInspectionTools } from "./inspection.js";
 import { registerReportingTools } from "./reporting.js";
 import { registerSeoTools } from "./seo.js";
@@ -26,6 +27,8 @@ export function registerAllTools(
   if (env.GOOGLE_GSC_ENABLE_WRITES === "true") {
     registerSiteWriteTools(server);
     registerSitemapWriteTools(server);
+    // Indexing API: separate host and OAuth scope from the rest of GSC.
+    registerIndexingTools(server);
     log.info("Write tools enabled");
   }
 

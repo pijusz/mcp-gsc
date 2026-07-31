@@ -177,6 +177,22 @@ Enable with `GOOGLE_GSC_ENABLE_WRITES=true`:
 | `delete_site` | Remove a site from GSC |
 | `submit_sitemap` | Submit a new sitemap |
 | `delete_sitemap` | Remove/unsubmit a sitemap |
+| `request_indexing` | Ask Google to crawl a URL via the Indexing API |
+| `get_indexing_status` | When a URL was last submitted for indexing |
+
+> **Indexing API prerequisites.** The last two use a different Google API to the
+> rest of this server, so they need three things the other tools don't:
+>
+> 1. **Re-run `mcp-gsc setup`** — credentials created before this feature lack
+>    the `auth/indexing` scope. The tools say so explicitly if yours do.
+> 2. **Enable the Indexing API** on your Google Cloud project —
+>    [console.cloud.google.com/apis/library/indexing.googleapis.com](https://console.cloud.google.com/apis/library/indexing.googleapis.com)
+> 3. **Be a verified _owner_** of the property in Search Console. Full-user
+>    access is not enough.
+>
+> Google officially supports the Indexing API only for pages carrying
+> `JobPosting` or `BroadcastEvent` structured data, with a default quota of
+> 200 URLs/day. It requests a crawl — it never guarantees indexing.
 
 ## Configuration
 
