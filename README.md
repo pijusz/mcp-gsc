@@ -55,7 +55,7 @@ claude mcp add gsc --scope user --transport stdio \
 That's it. Restart Claude Code and the tools are available.
 
 > Also works with `bunx mcp-gsc@latest` if you have [Bun](https://bun.sh/).
-> Requires Node 18+ when running via `npx`.
+> Requires Node 22+ when running via `npx`.
 
 ### Claude Desktop / Cursor
 

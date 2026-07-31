@@ -2,7 +2,11 @@ import { getAuthHeaders } from "../auth/index.js";
 import { log } from "../utils/logger.js";
 import { encodeSiteUrl } from "../utils/property.js";
 
-const WEBMASTERS_BASE = "https://www.googleapis.com/webmasters/v3";
+// Both surfaces live on searchconsole.googleapis.com. The webmasters/v3 paths
+// are still the canonical flatPaths in the searchconsole v1 discovery doc, but
+// the old www.googleapis.com host is an undocumented alias for an API that no
+// longer appears in Google's discovery directory.
+const WEBMASTERS_BASE = "https://searchconsole.googleapis.com/webmasters/v3";
 const SEARCHCONSOLE_BASE = "https://searchconsole.googleapis.com/v1";
 
 interface FetchWithRetryOpts extends RequestInit {

@@ -138,7 +138,7 @@ async function main() {
   oauthClient.setCredentials(tokens);
 
   try {
-    const res = await fetch("https://www.googleapis.com/webmasters/v3/sites", {
+    const res = await fetch("https://searchconsole.googleapis.com/webmasters/v3/sites", {
       headers: {
         Authorization: `Bearer ${tokens.access_token}`,
       },
