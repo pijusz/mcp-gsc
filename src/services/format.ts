@@ -57,25 +57,37 @@ function csvEscape(val: string): string {
 
 /**
  * Build response metadata header.
+ *
+ * The Search Analytics API returns no total-row count, so we must not claim
+ * one. A page that comes back exactly `rowLimit` long is the only signal that
+ * more rows may exist — anything shorter is the end of the result set.
  */
 export function formatMetadata(meta: {
   property: string;
   startDate: string;
   endDate: string;
-  totalRows: number;
   returnedRows: number;
+  rowLimit: number;
+  startRow?: number;
 }): string {
+  const startRow = meta.startRow ?? 0;
+  const mayHaveMore = meta.returnedRows >= meta.rowLimit;
+
   const lines = [
     `**Property:** ${meta.property}`,
     `**Date Range:** ${meta.startDate} to ${meta.endDate}`,
-    `**Rows Returned:** ${meta.returnedRows} of ${meta.totalRows} total`,
+    `**Rows Returned:** ${meta.returnedRows}${startRow > 0 ? ` (starting at row ${startRow})` : ""}`,
   ];
-  if (meta.returnedRows < meta.totalRows) {
+
+  if (mayHaveMore) {
     lines.push(
       "",
-      `*${meta.returnedRows} rows shown. Use start_row/row_limit params or export_csv tool for full data.*`,
+      `*This is a full page of ${meta.rowLimit} rows — more may exist. Google does not report a total, so fetch the next page with start_row=${startRow + meta.returnedRows} and keep going until a page returns fewer than ${meta.rowLimit} rows. Or use export_csv for the whole set.*`,
     );
+  } else {
+    lines.push("", "*Complete — this is the last page for these parameters.*");
   }
+
   return lines.join("\n");
 }
 

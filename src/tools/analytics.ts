@@ -213,8 +213,9 @@ Country codes use ISO 3166-1 alpha-3 format (e.g., 'usa', 'gbr', 'deu') — NOT 
         property,
         startDate: args.start_date,
         endDate: args.end_date,
-        totalRows: rows.length,
         returnedRows: capped.length,
+        rowLimit,
+        startRow: args.start_row ?? 0,
       });
 
       const columns = [

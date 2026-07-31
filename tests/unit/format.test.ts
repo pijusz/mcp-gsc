@@ -61,29 +61,52 @@ describe("formatCsv", () => {
 });
 
 describe("formatMetadata", () => {
+  const base = {
+    property: "sc-domain:example.com",
+    startDate: "2024-01-01",
+    endDate: "2024-01-31",
+  };
+
   test("includes all metadata fields", () => {
-    const result = formatMetadata({
-      property: "sc-domain:example.com",
-      startDate: "2024-01-01",
-      endDate: "2024-01-31",
-      totalRows: 500,
-      returnedRows: 100,
-    });
+    const result = formatMetadata({ ...base, returnedRows: 100, rowLimit: 500 });
     expect(result).toContain("sc-domain:example.com");
     expect(result).toContain("2024-01-01 to 2024-01-31");
-    expect(result).toContain("100 of 500 total");
-    expect(result).toContain("export_csv");
+    expect(result).toContain("100");
   });
 
-  test("no overflow message when all rows shown", () => {
-    const result = formatMetadata({
-      property: "x",
-      startDate: "2024-01-01",
-      endDate: "2024-01-31",
-      totalRows: 50,
-      returnedRows: 50,
-    });
+  test("a short page is reported as complete, with no pagination hint", () => {
+    const result = formatMetadata({ ...base, returnedRows: 50, rowLimit: 500 });
+    expect(result).toContain("Complete");
     expect(result).not.toContain("export_csv");
+    expect(result).not.toContain("start_row=");
+  });
+
+  // Google returns no total count, so a full page is the only "there may be
+  // more" signal. Reporting it as complete previously hid the rest of the data.
+  test("a full page warns that more rows may exist", () => {
+    const result = formatMetadata({ ...base, returnedRows: 500, rowLimit: 500 });
+    expect(result).toContain("more may exist");
+    expect(result).toContain("start_row=500");
+    expect(result).toContain("export_csv");
+    expect(result).not.toContain("Complete");
+  });
+
+  test("advances the suggested start_row when already paginating", () => {
+    const result = formatMetadata({
+      ...base,
+      returnedRows: 500,
+      rowLimit: 500,
+      startRow: 1000,
+    });
+    expect(result).toContain("starting at row 1000");
+    expect(result).toContain("start_row=1500");
+  });
+
+  test("never claims an 'N of M total' row count", () => {
+    for (const returnedRows of [50, 500]) {
+      const result = formatMetadata({ ...base, returnedRows, rowLimit: 500 });
+      expect(result).not.toMatch(/\d+\s+of\s+\d+\s+total/);
+    }
   });
 });
 

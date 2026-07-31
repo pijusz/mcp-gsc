@@ -111,8 +111,25 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Note skipped publish
+      # No token means the publish is expected to happen locally. Don't just
+      # assume it did — a GitHub release pointing at a version that isn't on
+      # npm is worse than a failed workflow. Poll, then fail loudly.
+      - name: Verify the version reached npm
         if: ${{ env.NODE_AUTH_TOKEN == '' }}
-        run: echo "NPM_TOKEN not set — skipping npm publish (published locally)." >> $GITHUB_STEP_SUMMARY
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          PKG=$(node -p "require('./package.json').name")
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "NPM_TOKEN unset — expecting a local publish of $PKG@$VERSION." >> $GITHUB_STEP_SUMMARY
+          for i in $(seq 1 20); do
+            if npm view "$PKG@$VERSION" version >/dev/null 2>&1; then
+              echo "Confirmed $PKG@$VERSION is on npm." >> $GITHUB_STEP_SUMMARY
+              exit 0
+            fi
+            echo "Attempt $i/20: not on npm yet, waiting 30s..."
+            sleep 30
+          done
+          echo "::error::$PKG@$VERSION is not on npm after 10 minutes. The GitHub release for $GITHUB_REF_NAME points at a version nobody can install — run 'npm publish' locally."
+          echo "FAILED: $PKG@$VERSION never appeared on npm." >> $GITHUB_STEP_SUMMARY
+          exit 1
