@@ -54,8 +54,12 @@ jobs:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
 
+  # Gated on publish, not just build. Both used to hang off build and raced, so
+  # a failed npm verification still left a GitHub release advertising a version
+  # nobody could install. Ordering it after publish prevents that state instead
+  # of reporting it after the fact.
   release:
-    needs: build
+    needs: [build, publish]
     runs-on: ubuntu-latest
 
     steps:
