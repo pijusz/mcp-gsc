@@ -104,9 +104,11 @@ Country codes use ISO 3166-1 alpha-3 format (e.g., 'usa', 'gbr', 'deu') — NOT 
       row_limit: z
         .number()
         .min(1)
-        .max(500)
+        .max(25000)
         .optional()
-        .describe("Max rows to return (default: 100, max: 500)"),
+        .describe(
+          "Max rows to return (default: 100, max: 25000 — the Search Analytics API ceiling). Raise it to reach the long tail; large values produce large responses",
+        ),
       start_row: z.number().min(0).optional().describe("0-based offset for pagination"),
       brand_filter: z
         .enum(["brand_only", "non_brand_only"])
