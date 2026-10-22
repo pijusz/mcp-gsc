@@ -36,8 +36,23 @@ interface ClientConfig {
 }
 
 let _client: OAuth2Client | null = null;
+let _inflight: Promise<OAuth2Client> | null = null;
 
-export async function getOAuthClient(): Promise<OAuth2Client> {
+/**
+ * Returns a ready OAuth client. Concurrent callers (e.g. the parallel API calls
+ * in compare_periods or weekly_seo_report) share one load/refresh instead of
+ * each refreshing the token and racing to rewrite the token file.
+ */
+export function getOAuthClient(): Promise<OAuth2Client> {
+  if (!_inflight) {
+    _inflight = loadOrRefreshClient().finally(() => {
+      _inflight = null;
+    });
+  }
+  return _inflight;
+}
+
+async function loadOrRefreshClient(): Promise<OAuth2Client> {
   if (_client) {
     const creds = _client.credentials;
     if (creds.expiry_date && creds.expiry_date < Date.now() + 60_000) {
