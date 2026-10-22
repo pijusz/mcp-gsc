@@ -86,4 +86,26 @@ describe("tool registration", () => {
     const toolNames = Object.keys(tools);
     expect(toolNames.length).toBe(27); // 8 core + 4 write + 2 indexing + 13 extended
   });
+
+  test("annotates every tool, with relaxed hints for additive writes", () => {
+    const server = new McpServer({ name: "test", version: "0.0.0" });
+    registerAllTools(server, {
+      GOOGLE_GSC_ENABLE_WRITES: "true",
+      GOOGLE_GSC_ENABLE_EXTENDED_TOOLS: "true",
+    });
+    const tools = (server as any)._registeredTools;
+    for (const [name, tool] of Object.entries<any>(tools)) {
+      expect(typeof tool.annotations?.readOnlyHint, name).toBe("boolean");
+    }
+    expect(tools.list_properties.annotations.readOnlyHint).toBe(true);
+    expect(tools.submit_sitemap.annotations).toMatchObject({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+    });
+    expect(tools.delete_site.annotations).toMatchObject({
+      destructiveHint: true,
+      idempotentHint: true,
+    });
+  });
 });

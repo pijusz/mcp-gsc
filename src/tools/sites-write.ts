@@ -31,6 +31,7 @@ export function registerSiteWriteTools(server: McpServer) {
         ],
       };
     },
+    { destructiveHint: false, idempotentHint: true },
   );
 
   writeTool(
@@ -52,5 +53,6 @@ export function registerSiteWriteTools(server: McpServer) {
         ],
       };
     },
+    { idempotentHint: true },
   );
 }

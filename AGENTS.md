@@ -30,6 +30,7 @@ src/
 │   ├── seo.ts                # quick_wins, cannibalization, opportunity_finder, position_tracking, ctr_anomalies, content_decay, weekly_seo_report
 │   └── technical.ts          # indexing_coverage, sitemap_health
 └── utils/
+    ├── register-tool.ts      # readTool/writeTool: registerTool + MCP annotations
     ├── logger.ts             # stderr-only logger
     └── property.ts           # URL encoding, domain extraction, brand name extraction
 ```
@@ -56,14 +57,14 @@ Two base URLs:
 2. **hour dimension** requires `dataState: "hourly_all"`, limited to last 10 days
 3. **Country codes** are ISO 3166-1 alpha-3 (usa, gbr, deu) — NOT alpha-2
 4. **`type` not `searchType`** — the deprecated field name was `searchType`
-5. **25K row ceiling** is absolute even with pagination
+5. **25K rows per request** — page with `startRow` for more; Google still caps total rows exposed per day/search type
 6. **URL Inspection** has dual limits: 600 QPM + 2,000/day per site
 
 ## Adding New Tools
 
 1. Create or edit a file in `src/tools/`
 2. Export a `registerXTools(server: McpServer)` function
-3. Use `server.tool(name, description, zodSchema, handler)`
+3. Use `readTool(server, name, description, zodShape, handler)` or `writeTool(...)` from `utils/register-tool.ts` — they call `registerTool` with MCP annotations (`writeTool` takes optional hint overrides, e.g. `{ destructiveHint: false, idempotentHint: true }` for additive calls)
 4. Handler must return `{ content: [{ type: "text", text }] }`
 5. Import and call registration in `src/tools/index.ts`
 
