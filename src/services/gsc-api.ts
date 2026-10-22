@@ -26,8 +26,12 @@ export async function fetchWithRetry(
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeout);
 
-      const res = await fetch(url, { ...init, signal: controller.signal });
-      clearTimeout(timer);
+      let res: Response;
+      try {
+        res = await fetch(url, { ...init, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
 
       if ((res.status === 429 || res.status >= 500) && attempt < retries) {
         const delay = retryDelay * 2 ** attempt;
@@ -55,6 +59,44 @@ export async function fetchWithRetry(
   throw lastError ?? new Error("Fetch failed after retries");
 }
 
+const STATUS_HINTS: Record<number, string> = {
+  401: "Credentials were rejected — re-run `mcp-gsc setup` to re-authorise.",
+  403: "Your account lacks permission for this property or operation. Run list_properties to see the exact property URLs and permission levels you have.",
+  404: "Not found — check the property URL format (e.g. 'sc-domain:example.com' vs 'https://example.com/') with list_properties.",
+  429: "Quota exceeded — wait and retry later, or reduce request volume.",
+};
+
+/**
+ * Turns Google's JSON error envelope into one readable line, keeping the
+ * machine reasons (e.g. ACCESS_TOKEN_SCOPE_INSUFFICIENT) so callers can match on them.
+ */
+export function formatApiError(status: number, body: string): string {
+  let detail = body.trim();
+  try {
+    const parsed = JSON.parse(body) as {
+      error?: {
+        message?: string;
+        status?: string;
+        details?: { reason?: string }[];
+        errors?: { reason?: string }[];
+      };
+    };
+    const e = parsed.error;
+    if (e?.message) {
+      const reasons = [...(e.details ?? []), ...(e.errors ?? [])]
+        .map((d) => d.reason)
+        .filter((r): r is string => Boolean(r));
+      const tags = [e.status, ...new Set(reasons)].filter(Boolean).join(", ");
+      detail = tags ? `${e.message} [${tags}]` : e.message;
+    }
+  } catch {
+    // Non-JSON body (e.g. an HTML error page) — fall through with the raw text.
+  }
+  if (detail.length > 500) detail = `${detail.slice(0, 500)}…`;
+  const hint = STATUS_HINTS[status];
+  return `GSC API error (${status}): ${detail}${hint ? `\n${hint}` : ""}`;
+}
+
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -67,8 +109,7 @@ async function apiRequest<T>(url: string, method = "GET", body?: unknown): Promi
   const res = await fetchWithRetry(url, opts);
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`GSC API error (${res.status}): ${text}`);
+    throw new Error(formatApiError(res.status, await res.text()));
   }
 
   const contentType = res.headers.get("content-type") ?? "";
