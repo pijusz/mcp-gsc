@@ -12,14 +12,16 @@ import { writeTool } from "../utils/register-tool.js";
 import { formatAnalyticsRows } from "./analytics.js";
 
 const MAX_ROWS_PER_REQUEST = 25000;
+/** Safety stop so a runaway export can't burn quota indefinitely (40 x 25K = 1M rows). */
+const MAX_PAGES = 40;
 
 export function registerExportTools(server: McpServer) {
   writeTool(
     server,
     "export_csv",
-    `Export search analytics data to a CSV file. Auto-paginates internally (25K rows per API call) to write the full dataset, bypassing the tool response row cap.
+    `Export search analytics data to a CSV file on the machine running this server. Pages through results internally (25K rows per API call, up to ${MAX_PAGES} calls) to write the full dataset, bypassing the tool response row cap.
 
-IMPORTANT: The GSC API has an absolute ceiling of 25,000 rows per query (sorted by impressions descending). For very large sites, this means the export will contain the top 25K query/page combinations, not the complete long tail. This is a Google API limitation, not a tool limitation.`,
+Note: Google itself caps how many rows it exposes per day and search type (sorted by clicks), so very large sites may not get the complete long tail. Use dimension_filters to split the export into smaller slices if needed.`,
     {
       site_url: z
         .string()
@@ -62,11 +64,14 @@ IMPORTANT: The GSC API has an absolute ceiling of 25,000 rows per query (sorted 
       const columns = [...dims, "clicks", "impressions", "ctr", "position"];
 
       let allRows: Record<string, unknown>[] = [];
-      const startRow = 0;
-      let hitCeiling = false;
+      let hitPageLimit = false;
 
-      // Paginate through results
-      while (true) {
+      for (let page = 0; ; page++) {
+        if (page >= MAX_PAGES) {
+          hitPageLimit = true;
+          break;
+        }
+        const startRow = page * MAX_ROWS_PER_REQUEST;
         const request: SearchAnalyticsRequest = {
           startDate: args.start_date,
           endDate: args.end_date,
@@ -100,10 +105,6 @@ IMPORTANT: The GSC API has an absolute ceiling of 25,000 rows per query (sorted 
         allRows = allRows.concat(formatted);
 
         if (rows.length < MAX_ROWS_PER_REQUEST) break;
-
-        // Hit the 25K ceiling
-        hitCeiling = true;
-        break;
       }
 
       if (allRows.length === 0) {
@@ -133,10 +134,10 @@ IMPORTANT: The GSC API has an absolute ceiling of 25,000 rows per query (sorted 
         `**Columns:** ${columns.join(", ")}`,
       ];
 
-      if (hitCeiling) {
+      if (hitPageLimit) {
         lines.push(
           "",
-          `**Note:** Results hit the GSC API ceiling of ${MAX_ROWS_PER_REQUEST.toLocaleString()} rows (sorted by impressions descending). The long tail of queries/pages is not included. Use dimension_filters to narrow the scope for more complete data.`,
+          `**Note:** Stopped after ${MAX_PAGES} pages (${(MAX_PAGES * MAX_ROWS_PER_REQUEST).toLocaleString()} rows). More rows may exist — use dimension_filters or a shorter date range to export the rest in slices.`,
         );
       }
 

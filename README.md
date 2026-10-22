@@ -136,7 +136,7 @@ Rate limits: 600/minute + 2,000/day per site (tracked automatically).
 #### Export
 | Tool | Description |
 |------|-------------|
-| `export_csv` | Export full search analytics to CSV file (auto-paginates, up to 25K rows) |
+| `export_csv` | Export full search analytics to a local CSV file (auto-paginates 25K rows per call, up to 1M rows) |
 
 ### Extended Tools (disabled by default)
 
